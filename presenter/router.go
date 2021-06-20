@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go-erp/application/handler"
 	"go-erp/application/middleware"
+	"go-erp/domain/throwable"
 	"log"
 	"net/http"
 	"os"
@@ -39,7 +40,6 @@ func (s *httpServer) Run() {
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
 		Handler:      s.router,
-		// Handler:      handlers.CombinedLoggingHandler(os.Stdout, s.router),
 	}
 
 	// runing 运行服务
@@ -57,7 +57,6 @@ func (s *httpServer) Run() {
 	defer cancel()
 	// Doesn't block if no connections, but will otherwise wait until the timeout deadline.
 	go func() {
-
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Println(err)
 		}
@@ -80,32 +79,22 @@ func loadRouter(
 	router.Use(gin.Recovery()) // 捕获异常恢复，防止服务奔溃
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 
-	baseMiddleware := middleware.NewBaseMiddleware()
-	router.Use(baseMiddleware.Locale())
-
+	// 登录认证
 	security := middleware.NewSecurityMiddleware()
 	router.Use(security.Auth())
+
+	// 基础中间件
+	baseMiddleware := middleware.NewBaseMiddleware()
+	router.Use(baseMiddleware.Locale())
 
 	goodsRouter(router, goodsHandler)
 	categoryRouter(router, categoriesHandler)
 
-	// category := router.PathPrefix("/category").Subrouter()
-	// testRoutes := router.PathPrefix("").Subrouter()
-	// goodsRoutes := goods.PathPrefix("").Subrouter()
-
-	// goodsRoutes.Use(security.Auth)
-	// goodsRoutes.HandleFunc("", func(writer http.ResponseWriter, request *http.Request) {
-	// 	writer.Write([]byte("{\"code\":200}"))
-	// }).Methods(http.MethodGet, http.MethodPatch)
-	// goodsRoutes.HandleFunc("/{id}", func(writer http.ResponseWriter, request *http.Request) {
-	// 	vars := mux.Vars(request) //vars['id']
-	// 	goodsHandler.Get(writer, request, vars["id"])
-	// }).Methods(http.MethodGet, http.MethodPatch)
-
-	// testRoutes.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
-	// 	writer.Write([]byte("{\"code\":200}"))
-	// }).Methods(http.MethodGet, http.MethodPatch)
-
+	router.NoRoute(func(c *gin.Context) {
+		err := throwable.NewNotFound("Not Found")
+		baseMiddleware.Error(c.Writer, err)
+		c.AbortWithError(http.StatusNotFound, *err)
+	})
 	return router
 }
 

@@ -3,7 +3,6 @@ module go-erp
 go 1.16
 
 require (
-	github.com/SananGuliyev/goddd v0.0.0-20191126164137-27762d9621c4
 	github.com/gin-contrib/gzip v0.0.3
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-pg/pg/v10 v10.9.1

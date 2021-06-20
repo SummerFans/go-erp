@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/SananGuliyev/goddd/domain/throwable"
+	"go-erp/domain/throwable"
 )
 
 type ErrorResponse struct {
