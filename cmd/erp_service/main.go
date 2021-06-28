@@ -17,12 +17,19 @@ func main() {
 		defer dependency.Close(db)
 	}
 
+	shopifyClient, err := dependency.NewShopifyClientConnection()
+	if err != nil {
+		fmt.Printf("%s", err.Error())
+		return
+	}
+
 	categoriesInteractor := interactor.NewCategoriesInteractor(
 		dependency.NewCategoryRepository(db),
 	)
 
 	goodsInteractor := interactor.NewGoodsInteractor(
 		dependency.NewGoodsRepository(db),
+		dependency.NewShopifyRepository(shopifyClient),
 	)
 
 	categories := handler.CategoriesHandler{Interactor: categoriesInteractor}

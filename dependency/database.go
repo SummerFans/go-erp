@@ -1,7 +1,6 @@
 package dependency
 
 import (
-	"errors"
 	"fmt"
 	"go-erp/conf"
 
@@ -20,19 +19,8 @@ func NewPostgresConnection() (*pg.DB, error) {
 	})
 
 	if _, err := connection.Exec("SELECT 1"); err != nil {
-		return nil, errors.New(fmt.Sprintf("pg databases service is not available: %v", err.Error()))
+		return nil, fmt.Errorf("pg databases service is not available: %v", err.Error())
 	}
-
-	// rdb := redis.NewClient(&redis.Options{
-	// 	Addr:     "localhost:6379",
-	// 	Password: "", // no password set
-	// 	DB:       0,  // use default DB
-	// })
-
-	// _, err := rdb.Ping(context.Background()).Result()
-	// if err != nil {
-	// 	return nil, errors.New(fmt.Sprintf("redis databases service is not available: %v", err.Error()))
-	// }
 
 	return connection, nil
 }

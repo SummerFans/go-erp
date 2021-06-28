@@ -10,7 +10,8 @@ type GoodsInteractor interface {
 }
 
 type goodsInteractor struct {
-	goodsRepository repository.GoodsRepository
+	goodsRepository   repository.GoodsRepository
+	shopifyRepository repository.ShopifyClientRepository
 }
 
 func (gi *goodsInteractor) Get(id int) (*entity.Goods, error) {
@@ -20,8 +21,12 @@ func (gi *goodsInteractor) Get(id int) (*entity.Goods, error) {
 	}, nil
 }
 
-func NewGoodsInteractor(goodRepository repository.GoodsRepository) GoodsInteractor {
+func NewGoodsInteractor(
+	goodRepository repository.GoodsRepository,
+	shopifyRepository repository.ShopifyClientRepository,
+) GoodsInteractor {
 	return &goodsInteractor{
-		goodsRepository: goodRepository,
+		goodsRepository:   goodRepository,
+		shopifyRepository: shopifyRepository,
 	}
 }
